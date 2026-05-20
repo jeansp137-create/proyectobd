@@ -1,17 +1,36 @@
 <?php
-// Configuración de conexión a PostgreSQL
-$host = 'localhost';
-$port = 5432;
-$database = 'proyectobd';
-$user = 'postgres';
-$password = '0192';
 
-try {
-    $dsn = "pgsql:host=$host;port=$port;dbname=$database";
-    $pdo = new PDO($dsn, $user, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "Conexión exitosa a PostgreSQL";
-} catch (PDOException $e) {
-    die("Error de conexión: " . $e->getMessage());
+class Conexion {
+    // Definimos las credenciales como propiedades privadas por seguridad
+    private $host = 'localhost';
+    private $port = '5432';
+    private $dbname = 'proyectobd'; // Cambia esto por el nombre exacto de tu base
+    private $user = 'postgres';
+    private $password = '0192';   // Pon la clave de tu pgAdmin/PostgreSQL
+
+    // Método principal que será llamado por los Modelos
+    public function conectar() {
+        try {
+            // Construimos el Data Source Name (DSN)
+            $dsn = "pgsql:host={$this->host};port={$this->port};dbname={$this->dbname}";
+            
+            // Opciones de seguridad y optimización
+            $opciones = [
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES   => false
+            ];
+
+            // Instanciamos la clase nativa de PHP para bases de datos
+            $pdo = new PDO($dsn, $this->user, $this->password, $opciones);
+            
+            return $pdo;
+
+        } catch (PDOException $e) {
+            // Si el motor de PostgreSQL está apagado o la clave es incorrecta, capturamos el golpe
+            die("Error crítico conectando a la base de datos: " . $e->getMessage());
+        }
+    }
 }
+
 ?>
