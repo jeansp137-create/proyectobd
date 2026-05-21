@@ -25,7 +25,7 @@ class CursoController {
     }
 
     /**
-     * PANTALLA 3: Visualización de Estudiantes Inscritos
+     * PANTALLA 4: Visualización de Estudiantes Inscritos
      */
     public function estudiantes() {
         // Guardamos las selecciones en la sesión si se envían por POST desde la Selección (Pantalla 2)
@@ -48,7 +48,7 @@ class CursoController {
         // Obtenemos detalles del curso
         $curso = $this->cursoModel->obtenerCursoPorCodigo($cod_cur);
 
-        // Obtenemos estudiantes inscritos (PANTALLA 3)
+        // Obtenemos estudiantes inscritos (PANTALLA 4)
         $estudiantesInscritos = $this->estudianteModel->obtenerEstudiantesInscritos($cod_cur, $year, $periodo);
 
         // Obtenemos todos los estudiantes de la universidad para el formulario de inscripción
@@ -83,7 +83,7 @@ class CursoController {
     }
 
     /**
-     * Acción para eliminar la inscripción de un estudiante (Acción del botón rojo de papelera)
+     * Acción para eliminar la inscripción de un estudiante
      */
     public function desinscribir() {
         $cod_est = isset($_GET['cod_est']) ? trim($_GET['cod_est']) : '';
@@ -101,6 +101,215 @@ class CursoController {
             }
         }
         header("Location: index.php?c=Curso&a=estudiantes");
+        exit;
+    }
+
+    // ==========================================
+    // CRUD DE CURSOS
+    // ==========================================
+
+    /**
+     * PANTALLA 3: Cursos Registrados (CRUD Cursos)
+     */
+    public function listar_cursos() {
+        $docente_id = $_SESSION['docente_id'];
+        $cursos = $this->cursoModel->obtenerCursosDocente($docente_id);
+
+        $error = isset($_SESSION['error_mensaje']) ? $_SESSION['error_mensaje'] : '';
+        $exito = isset($_SESSION['exito_mensaje']) ? $_SESSION['exito_mensaje'] : '';
+        unset($_SESSION['error_mensaje'], $_SESSION['exito_mensaje']);
+
+        $cursoEditar = null;
+        if (isset($_GET['edit_cod_cur'])) {
+            $cursoEditar = $this->cursoModel->obtenerCursoPorCodigo($_GET['edit_cod_cur']);
+        }
+
+        require_once 'views/cursos_registrados.php';
+    }
+
+    /**
+     * Adicionar Curso (POST)
+     */
+    public function crear_curso() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $cod_cur  = isset($_POST['cod_cur']) ? trim($_POST['cod_cur']) : '';
+            $nomb_cur = isset($_POST['nomb_cur']) ? trim($_POST['nomb_cur']) : '';
+            $docente_id = $_SESSION['docente_id'];
+
+            if (!empty($cod_cur) && !empty($nomb_cur)) {
+                $exito = $this->cursoModel->registrarCurso($cod_cur, $nomb_cur, $docente_id);
+                if ($exito) {
+                    $_SESSION['exito_mensaje'] = "Curso registrado correctamente.";
+                } else {
+                    $_SESSION['error_mensaje'] = "Error al registrar el curso. Es posible que el código del curso ya exista.";
+                }
+            } else {
+                $_SESSION['error_mensaje'] = "Todos los campos son obligatorios.";
+            }
+        }
+        header("Location: index.php?c=Curso&a=listar_cursos");
+        exit;
+    }
+
+    /**
+     * Editar Curso (POST / GET)
+     */
+    public function editar_curso() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // El campo cod_cur es de solo lectura en el formulario HTML (atributo readonly)
+            // Aquí NO actualizamos cod_cur en el UPDATE para mantener la integridad referencial.
+            $cod_cur  = isset($_POST['cod_cur']) ? trim($_POST['cod_cur']) : '';
+            $nomb_cur = isset($_POST['nomb_cur']) ? trim($_POST['nomb_cur']) : '';
+
+            if (!empty($cod_cur) && !empty($nomb_cur)) {
+                $exito = $this->cursoModel->actualizarCurso($cod_cur, $nomb_cur);
+                if ($exito) {
+                    $_SESSION['exito_mensaje'] = "Curso actualizado correctamente.";
+                } else {
+                    $_SESSION['error_mensaje'] = "Error al actualizar el curso.";
+                }
+            } else {
+                $_SESSION['error_mensaje'] = "El nombre del curso no puede estar vacío.";
+            }
+            header("Location: index.php?c=Curso&a=listar_cursos");
+            exit;
+        }
+
+        // Si se llama por GET para cargar el formulario de edición
+        $cod_cur = isset($_GET['cod_cur']) ? trim($_GET['cod_cur']) : '';
+        header("Location: index.php?c=Curso&a=listar_cursos&edit_cod_cur=" . urlencode($cod_cur));
+        exit;
+    }
+
+    /**
+     * Eliminar Curso (GET)
+     */
+    public function eliminar_curso() {
+        $cod_cur = isset($_GET['cod_cur']) ? trim($_GET['cod_cur']) : '';
+        if (!empty($cod_cur)) {
+            $exito = $this->cursoModel->eliminarCurso($cod_cur);
+            if ($exito) {
+                $_SESSION['exito_mensaje'] = "Curso eliminado correctamente.";
+            } else {
+                $_SESSION['error_mensaje'] = "Error al eliminar el curso.";
+            }
+        }
+        header("Location: index.php?c=Curso&a=listar_cursos");
+        exit;
+    }
+
+    // ==========================================
+    // CARGA MASIVA DE ESTUDIANTES VIA CSV
+    // ==========================================
+
+    /**
+     * PANTALLA 5: Formulario de carga de estudiantes (CSV)
+     */
+    public function cargar_estudiantes_vista() {
+        if (empty($_SESSION['curso_activo'])) {
+            header("Location: index.php?c=Curso&a=index");
+            exit;
+        }
+
+        $cod_cur = $_SESSION['curso_activo'];
+        $curso = $this->cursoModel->obtenerCursoPorCodigo($cod_cur);
+
+        $error = isset($_SESSION['error_mensaje']) ? $_SESSION['error_mensaje'] : '';
+        $exito = isset($_SESSION['exito_mensaje']) ? $_SESSION['exito_mensaje'] : '';
+        unset($_SESSION['error_mensaje'], $_SESSION['exito_mensaje']);
+
+        require_once 'views/cargar_estudiantes.php';
+    }
+
+    /**
+     * Procesa el archivo CSV subido por el usuario
+     */
+    public function procesar_csv() {
+        if (empty($_SESSION['curso_activo'])) {
+            header("Location: index.php?c=Curso&a=index");
+            exit;
+        }
+
+        $cod_cur = $_SESSION['curso_activo'];
+        $year    = $_SESSION['year_activo'];
+        $periodo = $_SESSION['periodo_activo'];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['archivo_csv'])) {
+            $file = $_FILES['archivo_csv'];
+
+            if ($file['error'] !== UPLOAD_ERR_OK) {
+                $_SESSION['error_mensaje'] = "Error al subir el archivo.";
+                header("Location: index.php?c=Curso&a=cargar_estudiantes_vista");
+                exit;
+            }
+
+            // Validar extensión
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            if (strtolower($extension) !== 'csv') {
+                $_SESSION['error_mensaje'] = "El archivo debe tener extensión .csv.";
+                header("Location: index.php?c=Curso&a=cargar_estudiantes_vista");
+                exit;
+            }
+
+            $filepath = $file['tmp_name'];
+            $countNuevos = 0;
+            $countMatriculados = 0;
+
+            if (($handle = fopen($filepath, "r")) !== FALSE) {
+                $firstRow = true;
+                
+                while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                    // Si detecta punto y coma como delimitador en lugar de coma
+                    if (count($data) === 1 && strpos($data[0], ';') !== false) {
+                        $data = explode(';', $data[0]);
+                    }
+
+                    if (empty($data) || count($data) < 2) {
+                        continue;
+                    }
+
+                    $cod_est  = trim($data[0]);
+                    $nomb_est = trim($data[1]);
+
+                    // Validar si la primera fila es de encabezados
+                    if ($firstRow) {
+                        $firstRow = false;
+                        
+                        // Si no es numérico el código de estudiante o contiene palabras comunes de encabezados
+                        if (!is_numeric($cod_est) || 
+                            stripos($cod_est, 'codigo') !== false || 
+                            stripos($cod_est, 'código') !== false || 
+                            stripos($nomb_est, 'nombre') !== false) {
+                            continue; // Ignora los encabezados
+                        }
+                    }
+
+                    if (!empty($cod_est) && !empty($nomb_est)) {
+                        // 1. Verificar si el estudiante existe en el catálogo global
+                        $estudiante = $this->estudianteModel->obtenerEstudiantePorCodigo($cod_est);
+                        if (!$estudiante) {
+                            $this->estudianteModel->registrarEstudianteSimple($cod_est, $nomb_est);
+                            $countNuevos++;
+                        }
+
+                        // 2. Inscribir en el curso activo
+                        $inscrito = $this->estudianteModel->inscribirEstudiante($cod_cur, $cod_est, $year, $periodo);
+                        if ($inscrito) {
+                            $countMatriculados++;
+                        }
+                    }
+                }
+                fclose($handle);
+
+                $_SESSION['exito_mensaje'] = "Procesamiento completo. Estudiantes nuevos registrados: $countNuevos. Estudiantes matriculados exitosamente: $countMatriculados.";
+            } else {
+                $_SESSION['error_mensaje'] = "No se pudo abrir el archivo para lectura.";
+            }
+        } else {
+            $_SESSION['error_mensaje'] = "No se ha seleccionado ningún archivo.";
+        }
+
+        header("Location: index.php?c=Curso&a=cargar_estudiantes_vista");
         exit;
     }
 }

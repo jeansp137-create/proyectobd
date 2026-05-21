@@ -1,143 +1,123 @@
+<?php
+$dias = array("Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado");
+$meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+$fecha_actual = $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]." de ".date('Y');
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estudiantes Inscritos - Portal Docente</title>
+    <title>Estudiantes Inscritos - Registro de Notas</title>
     <link rel="stylesheet" href="views/assets/css/style.css">
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <div class="logo-container">
-                <div class="logo-icon">BD</div>
-                <span class="logo-text">Universidad de los Llanos</span>
-            </div>
-            <div class="user-info">
-                <span class="user-badge">👤 Prof. <?= htmlspecialchars($_SESSION['docente_nombre']) ?></span>
-                <a href="index.php?c=Auth&a=logout" class="btn btn-secondary" style="padding: 0.35rem 0.85rem; font-size: 0.875rem;">Salir</a>
-            </div>
-        </div>
-    </header>
+    <div class="header-top">
+        REGISTRO DE NOTAS
+        <span class="date-display"><?php echo htmlspecialchars($fecha_actual); ?></span>
+    </div>
+    <div class="header-bottom">
+        CURSO: <?= htmlspecialchars($curso['nomb_cur']) ?> (<?= htmlspecialchars($curso['cod_cur']) ?>)
+    </div>
 
     <main class="app-container">
-        <!-- Información del Curso Activo -->
-        <div class="info-bar">
-            <div class="info-item">
-                <span>Curso Activo</span>
-                <h4><?= htmlspecialchars($curso['nomb_cur']) ?> (<?= htmlspecialchars($curso['cod_cur']) ?>)</h4>
-            </div>
-            <div class="info-item">
-                <span>Año Académico</span>
-                <h4><?= htmlspecialchars($_SESSION['year_activo']) ?></h4>
-            </div>
-            <div class="info-item">
-                <span>Periodo Semestral</span>
-                <h4><?= htmlspecialchars($_SESSION['periodo_activo']) ?></h4>
-            </div>
-            <div class="info-item" style="display: flex; align-items: center; justify-content: center;">
-                <a href="index.php?c=Curso&a=index" class="btn btn-secondary" style="width: 100%;">🔄 Cambiar Selección</a>
-            </div>
-        </div>
-
-        <!-- Pestañas de Navegación -->
-        <div class="nav-tabs">
-            <a href="index.php?c=Curso&a=estudiantes" class="nav-link active">👥 Estudiantes Inscritos</a>
-            <a href="index.php?c=Nota&a=cohortes" class="nav-link">⚙️ Configurar Cohortes</a>
-            <a href="index.php?c=Nota&a=registro" class="nav-link">📝 Registrar Calificaciones</a>
-        </div>
-
-        <!-- Mensajes de Alerta -->
-        <?php if (isset($_SESSION['exito_mensaje'])): ?>
-            <div class="alert alert-success">
-                <span>✅</span>
-                <div><?= htmlspecialchars($_SESSION['exito_mensaje']) ?></div>
-            </div>
-            <?php unset($_SESSION['exito_mensaje']); ?>
-        <?php endif; ?>
-
-        <?php if (isset($_SESSION['error_mensaje'])): ?>
-            <div class="alert alert-danger">
-                <span>⚠️</span>
-                <div><?= htmlspecialchars($_SESSION['error_mensaje']) ?></div>
-            </div>
-            <?php unset($_SESSION['error_mensaje']); ?>
-        <?php endif; ?>
-
-        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 2rem; align-items: start;">
-            <!-- Tabla de Estudiantes (PANTALLA 3) -->
-            <div class="glass-card" style="padding: 2rem; margin-bottom: 0;">
-                <h2>Estudiantes Inscritos en el Curso</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-                    Listado de alumnos matriculados en este grupo para el semestre en curso.
-                </p>
-
-                <?php if (empty($estudiantesInscritos)): ?>
-                    <div style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
-                        <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">👥</span>
-                        No hay estudiantes inscritos en este curso para este año/periodo.
+        <!-- Estructura de Paneles 70/30 -->
+        <div class="panel-container">
+            <!-- Columna Izquierda (70%) -->
+            <div class="panel-left">
+                <h2 class="section-title">ESTUDIANTES MATRICULADOS</h2>
+                
+                <?php if (isset($_SESSION['exito_mensaje'])): ?>
+                    <div class="alert alert-success">
+                        <?= htmlspecialchars($_SESSION['exito_mensaje']) ?>
                     </div>
-                <?php else: ?>
-                    <div class="table-container">
-                        <table>
-                            <thead>
+                    <?php unset($_SESSION['exito_mensaje']); ?>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['error_mensaje'])): ?>
+                    <div class="alert alert-danger">
+                        <?= htmlspecialchars($_SESSION['error_mensaje']) ?>
+                    </div>
+                    <?php unset($_SESSION['error_mensaje']); ?>
+                <?php endif; ?>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 10%; text-align: center;">No.</th>
+                                <th style="width: 25%;">Código</th>
+                                <th style="width: 50%;">Nombres y Apellidos</th>
+                                <th style="width: 15%; text-align: center;">Eliminar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($estudiantesInscritos)): ?>
                                 <tr>
-                                    <th style="width: 60px;">No.</th>
-                                    <th>Código</th>
-                                    <th>Nombres y Apellidos</th>
-                                    <th style="width: 100px; text-align: center;">Acciones</th>
+                                    <td colspan="4" style="text-align: center; color: #777777; padding: 20px;">No hay estudiantes inscritos en este curso para este año/periodo.</td>
                                 </tr>
-                            </thead>
-                            <tbody>
+                            <?php else: ?>
                                 <?php 
                                 $contador = 1; 
                                 foreach ($estudiantesInscritos as $est): 
                                 ?>
                                     <tr>
-                                        <td><?= $contador++ ?></td>
-                                        <td style="font-weight: 600; color: var(--accent-blue);"><?= htmlspecialchars($est['cod_est']) ?></td>
+                                        <td style="text-align: center;"><?= $contador++ ?></td>
+                                        <td><strong><?= htmlspecialchars($est['cod_est']) ?></strong></td>
                                         <td><?= htmlspecialchars($est['nomb_est']) ?></td>
                                         <td style="text-align: center;">
                                             <a href="index.php?c=Curso&a=desinscribir&cod_est=<?= urlencode($est['cod_est']) ?>" 
-                                               class="btn btn-danger" 
-                                               style="padding: 0.4rem 0.6rem; font-size: 0.85rem;" 
-                                               onclick="return confirm('¿Está seguro de que desea eliminar la inscripción de este estudiante? Se eliminarán todas sus notas asociadas.');"
+                                               class="icon-action icon-red" 
+                                               onclick="return confirm('¿Está seguro de que desea eliminar la inscripción de este estudiante? Se eliminarán todas sus calificaciones asociadas en cascada.');"
                                                title="Eliminar Inscripción">
-                                                🗑️ Eliminar
+                                                🗑️
                                             </a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php endif; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Formulario de inscripción individual (Formulario clásico con etiquetas y select) -->
+                <div style="margin-top: 30px; padding: 20px; border: 1px solid #dddddd; background-color: #fbfbfb;">
+                    <h3 style="font-size: 14px; font-weight: 700; color: #333; margin-bottom: 15px; text-transform: uppercase;">Matricular Estudiante Individualmente</h3>
+                    <form action="index.php?c=Curso&a=inscribir" method="POST">
+                        <div class="form-group-row" style="margin-bottom: 15px;">
+                            <label for="cod_est">* Seleccionar Estudiante:</label>
+                            <div class="input-wrapper">
+                                <select id="cod_est" name="cod_est" required>
+                                    <option value="">-- Elija un Estudiante --</option>
+                                    <?php foreach ($todosEstudiantes as $est): ?>
+                                        <option value="<?= htmlspecialchars($est['cod_est']) ?>">
+                                            [<?= htmlspecialchars($est['cod_est']) ?>] <?= htmlspecialchars($est['nomb_est']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <button type="submit" class="btn btn-success" style="width: 100px;">Inscribir</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-            <!-- Formulario de Inscripción Rápida -->
-            <div class="glass-card" style="padding: 2rem;">
-                <h2>Matricular Alumno</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                    Inscriba estudiantes previamente registrados en la universidad en este curso.
-                </p>
-
-                <form action="index.php?c=Curso&a=inscribir" method="POST">
-                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                        <label for="cod_est">Seleccionar Estudiante</label>
-                        <select id="cod_est" name="cod_est" required>
-                            <option value="">-- Elija un Estudiante --</option>
-                            <?php foreach ($todosEstudiantes as $est): ?>
-                                <option value="<?= htmlspecialchars($est['cod_est']) ?>">
-                                    [<?= htmlspecialchars($est['cod_est']) ?>] <?= htmlspecialchars($est['nomb_est']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="btn btn-success" style="width: 100%;">
-                        ➕ Inscribir Alumno
-                    </button>
-                </form>
+            <!-- Columna Derecha (30%) -->
+            <div class="panel-right">
+                <h3 class="panel-title">OPCIONES DE CURSO</h3>
+                
+                <a href="index.php?c=Nota&a=cohortes" class="btn btn-outline-success">Crear notas de curso</a>
+                <a href="index.php?c=Curso&a=cargar_estudiantes_vista" class="btn btn-outline-success">Cargar estudiantes</a>
+                <a href="index.php?c=Nota&a=registro" class="btn btn-outline-success">Ver planilla</a>
+                
+                <a href="index.php?c=Curso&a=index" class="btn btn-option" style="margin-top: 15px; background-color: #555555; border-color: #444444;">Cambiar Curso</a>
+                
+                <div class="recuadro-amarillo">
+                    <strong>Nota Académica:</strong><br>
+                    Este módulo le permite matricular alumnos de manera individual seleccionándolos de la base de datos general, o de manera masiva utilizando un archivo en formato CSV. Asegúrese de que el estudiante esté registrado en el sistema antes de proceder con su matriculación individual.
+                </div>
             </div>
         </div>
     </main>

@@ -1,197 +1,169 @@
+<?php
+$dias = array("Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado");
+$meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+$fecha_actual = $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]." de ".date('Y');
+
+// Cálculo de la suma total de porcentajes
+$sumaActual = 0.0;
+foreach ($cohortes as $ch) {
+    $sumaActual += (float) $ch['porcentaje'];
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configurar Cohortes - Portal Docente</title>
+    <title>Configurar Cohortes - Registro de Notas</title>
     <link rel="stylesheet" href="views/assets/css/style.css">
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <div class="logo-container">
-                <div class="logo-icon">BD</div>
-                <span class="logo-text">Universidad de los Llanos</span>
-            </div>
-            <div class="user-info">
-                <span class="user-badge">👤 Prof. <?= htmlspecialchars($_SESSION['docente_nombre']) ?></span>
-                <a href="index.php?c=Auth&a=logout" class="btn btn-secondary" style="padding: 0.35rem 0.85rem; font-size: 0.875rem;">Salir</a>
-            </div>
-        </div>
-    </header>
+    <div class="header-top">
+        REGISTRO DE NOTAS
+        <span class="date-display"><?php echo htmlspecialchars($fecha_actual); ?></span>
+    </div>
+    <div class="header-bottom">
+        CREAR NOTAS DE CURSO - <?= htmlspecialchars($curso['nomb_cur']) ?>
+    </div>
 
     <main class="app-container">
-        <!-- Información del Curso Activo -->
-        <div class="info-bar">
-            <div class="info-item">
-                <span>Curso Activo</span>
-                <h4><?= htmlspecialchars($curso['nomb_cur']) ?> (<?= htmlspecialchars($curso['cod_cur']) ?>)</h4>
-            </div>
-            <div class="info-item">
-                <span>Año Académico</span>
-                <h4><?= htmlspecialchars($_SESSION['year_activo']) ?></h4>
-            </div>
-            <div class="info-item">
-                <span>Periodo Semestral</span>
-                <h4><?= htmlspecialchars($_SESSION['periodo_activo']) ?></h4>
-            </div>
-            <div class="info-item" style="display: flex; align-items: center; justify-content: center;">
-                <a href="index.php?c=Curso&a=index" class="btn btn-secondary" style="width: 100%;">🔄 Cambiar Selección</a>
-            </div>
-        </div>
+        <!-- Estructura de Paneles 70/30 -->
+        <div class="panel-container">
+            <!-- Columna Izquierda (70%) -->
+            <div class="panel-left">
+                <h2 class="section-title">CONFIGURACIÓN DE COHORTES (NOTAS PARCIALES)</h2>
 
-        <!-- Pestañas de Navegación -->
-        <div class="nav-tabs">
-            <a href="index.php?c=Curso&a=estudiantes" class="nav-link">👥 Estudiantes Inscritos</a>
-            <a href="index.php?c=Nota&a=cohortes" class="nav-link active">⚙️ Configurar Cohortes</a>
-            <a href="index.php?c=Nota&a=registro" class="nav-link">📝 Registrar Calificaciones</a>
-        </div>
+                <?php if (!empty($error)): ?>
+                    <div class="alert alert-danger">
+                        <?= htmlspecialchars($error) ?>
+                    </div>
+                <?php endif; ?>
 
-        <!-- Alertas de Negocio -->
-        <?php if (!empty($error)): ?>
-            <div class="alert alert-danger">
-                <span>⚠️</span>
-                <div><?= htmlspecialchars($error) ?></div>
-            </div>
-        <?php endif; ?>
+                <?php if (!empty($exito)): ?>
+                    <div class="alert alert-success">
+                        <?= htmlspecialchars($exito) ?>
+                    </div>
+                <?php endif; ?>
 
-        <?php if (!empty($exito)): ?>
-            <div class="alert alert-success">
-                <span>✅</span>
-                <div><?= htmlspecialchars($exito) ?></div>
-            </div>
-        <?php endif; ?>
+                <!-- Resumen de porcentajes -->
+                <div style="background-color: #fafafa; border: 1px solid #dddddd; padding: 15px; margin-bottom: 25px; font-size: 13px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 700;">
+                        <span>Porcentaje Evaluado Acumulado:</span>
+                        <span style="color: <?= $sumaActual === 100.00 ? '#5cb85c' : ($sumaActual > 100.00 ? '#d9534f' : '#337ab7') ?>;">
+                            <?= $sumaActual ?>% / 100%
+                        </span>
+                    </div>
+                    
+                    <!-- Barra de progreso rígida y simple -->
+                    <div style="width: 100%; height: 10px; background-color: #e0e0e0; border: 1px solid #cccccc; overflow: hidden; margin-bottom: 8px;">
+                        <div style="width: <?= min($sumaActual, 100) ?>%; height: 100%; background-color: <?= $sumaActual === 100.00 ? '#5cb85c' : ($sumaActual > 100.00 ? '#d9534f' : '#337ab7') ?>;"></div>
+                    </div>
 
-        <!-- Visualización del Porcentaje Total Configurado -->
-        <?php 
-        $sumaActual = 0.0;
-        foreach ($cohortes as $ch) {
-            $sumaActual += (float) $ch['porcentaje'];
-        }
-        ?>
-        <div class="glass-card" style="padding: 1.5rem 2rem; margin-bottom: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h3 style="font-size: 1.1rem; font-weight: 600;">Suma Total de Porcentajes del Curso</h3>
-                <span style="font-weight: 700; color: <?= $sumaActual === 100.00 ? 'var(--accent-green)' : ($sumaActual > 100.00 ? 'var(--accent-red)' : 'var(--accent-blue)') ?>;">
-                    <?= $sumaActual ?>% / 100%
-                </span>
-            </div>
-            <div class="progress-container" style="margin: 0;">
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" style="width: <?= min($sumaActual, 100) ?>%; background: <?= $sumaActual === 100.00 ? 'var(--accent-green)' : ($sumaActual > 100.00 ? 'var(--accent-red)' : 'linear-gradient(to right, var(--accent-blue), var(--accent-indigo))') ?>;"></div>
+                    <?php if ($sumaActual < 100.00): ?>
+                        <p style="color: #666666; font-size: 11px;">
+                            💡 Falta configurar un <strong><?= 100.00 - $sumaActual ?>%</strong> para completar el plan académico.
+                        </p>
+                    <?php elseif ($sumaActual === 100.00): ?>
+                        <p style="color: #3c763d; font-size: 11px; font-weight: 700;">
+                            🎉 ¡Perfecto! El total de cohortes configurados cubre exactamente el 100% del curso.
+                        </p>
+                    <?php endif; ?>
                 </div>
-            </div>
-            <?php if ($sumaActual < 100.00): ?>
-                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem;">
-                    💡 Aún faltan <?= 100.00 - $sumaActual ?>% para completar el 100% del curso y poder generar notas definitivas balanceadas.
-                </p>
-            <?php elseif ($sumaActual === 100.00): ?>
-                <p style="color: var(--accent-green); font-size: 0.85rem; margin-top: 0.5rem; font-weight: 500;">
-                    🎉 ¡Perfecto! Los porcentajes de los cohortes suman exactamente el 100%.
-                </p>
-            <?php endif; ?>
-        </div>
 
-        <div style="display: grid; grid-template-columns: 350px 1fr; gap: 2rem; align-items: start;">
-            <!-- Formulario de Cohortes (PANTALLA 4) -->
-            <div class="glass-card" style="padding: 2rem;">
-                <h2><?= $cohorteEditar ? 'Editar Cohorte' : 'Crear Nota / Cohorte' ?></h2>
-                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                    Configure los ponderados de evaluación del curso.
-                </p>
+                <!-- Formulario de Adición o Edición -->
+                <div style="border: 1px solid #cccccc; padding: 20px; background-color: #fcfcfc; margin-bottom: 30px;">
+                    <h3 style="font-size: 14px; font-weight: 700; color: #333333; margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid #eeeeee; padding-bottom: 5px;">
+                        <?= $cohorteEditar ? 'Modificar Cohorte' : 'Adicionar Nota Parcial' ?>
+                    </h3>
+                    <form action="index.php?c=Nota&a=cohortes" method="POST">
+                        <?php if ($cohorteEditar): ?>
+                            <input type="hidden" name="nota_id" value="<?= htmlspecialchars($cohorteEditar['nota']) ?>">
+                        <?php endif; ?>
 
-                <form action="index.php?c=Nota&a=cohortes" method="POST">
-                    <!-- Hidden field para edición -->
-                    <?php if ($cohorteEditar): ?>
-                        <input type="hidden" name="nota_id" value="<?= htmlspecialchars($cohorteEditar['nota']) ?>">
-                    <?php endif; ?>
+                        <div class="form-group-row">
+                            <label for="posicion">* Posición (Orden):</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="posicion" name="posicion" min="1" required 
+                                       value="<?= $cohorteEditar ? htmlspecialchars($cohorteEditar['posicion']) : (count($cohortes) + 1) ?>">
+                            </div>
+                        </div>
 
-                    <!-- Posición -->
-                    <div class="form-group">
-                        <label for="posicion">Posición (Orden)</label>
-                        <input type="number" id="posicion" name="posicion" min="1" placeholder="Ej. 1" 
-                               value="<?= $cohorteEditar ? htmlspecialchars($cohorteEditar['posicion']) : (count($cohortes) + 1) ?>" required>
-                    </div>
+                        <div class="form-group-row">
+                            <label for="descripcion">* Descripción:</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="descripcion" name="descripcion" placeholder="Ej. Primer corte" required 
+                                       value="<?= $cohorteEditar ? htmlspecialchars($cohorteEditar['desc_nota']) : '' ?>">
+                            </div>
+                        </div>
 
-                    <!-- Descripción -->
-                    <div class="form-group">
-                        <label for="descripcion">Descripción (Nombre)</label>
-                        <input type="text" id="descripcion" name="descripcion" placeholder="Ej. Parcial uno" 
-                               value="<?= $cohorteEditar ? htmlspecialchars($cohorteEditar['desc_nota']) : '' ?>" required>
-                    </div>
+                        <div class="form-group-row">
+                            <label for="porcentaje">* Porcentaje (%):</label>
+                            <div class="input-wrapper">
+                                <input type="number" id="porcentaje" name="porcentaje" min="1" max="100" step="0.01" required placeholder="Ej. 30" 
+                                       value="<?= $cohorteEditar ? htmlspecialchars($cohorteEditar['porcentaje']) : '' ?>">
+                            </div>
+                        </div>
 
-                    <!-- Porcentaje -->
-                    <div class="form-group" style="margin-bottom: 2rem;">
-                        <label for="porcentaje">Porcentaje (%)</label>
-                        <input type="number" id="porcentaje" name="porcentaje" min="0" max="100" step="0.01" placeholder="Ej. 30" 
-                               value="<?= $cohorteEditar ? htmlspecialchars($cohorteEditar['porcentaje']) : '' ?>" required>
-                    </div>
+                        <div style="text-align: right; margin-top: 15px;">
+                            <?php if ($cohorteEditar): ?>
+                                <a href="index.php?c=Nota&a=cohortes" class="btn btn-secondary" style="margin-right: 5px;">Cancelar</a>
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            <?php else: ?>
+                                <button type="submit" class="btn btn-success">+ Adicionar</button>
+                            <?php endif; ?>
+                        </div>
+                    </form>
+                </div>
 
-                    <!-- Botones de Acción -->
-                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 0.75rem;">
-                        <?= $cohorteEditar ? '💾 Guardar Cambios' : '➕ Crear Nota Parcial' ?>
-                    </button>
-
-                    <?php if ($cohorteEditar): ?>
-                        <a href="index.php?c=Nota&a=cohortes" class="btn btn-secondary" style="width: 100%;">
-                            Cancelar Edición
-                        </a>
-                    <?php endif; ?>
-                </form>
-            </div>
-
-            <!-- Tabla de Cohortes Registrados (PANTALLA 4) -->
-            <div class="glass-card" style="padding: 2rem; margin-bottom: 0;">
-                <h2>Notas y Cohortes Configurados</h2>
-                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-                    Estructura de evaluación definida para el curso activo.
-                </p>
-
-                <?php if (empty($cohortes)): ?>
-                    <div style="text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
-                        <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">⚙️</span>
-                        Aún no has configurado ninguna nota parcial o cohorte para este curso.
-                    </div>
-                <?php else: ?>
-                    <div class="table-container">
-                        <table>
-                            <thead>
+                <!-- Tabla de Cohortes -->
+                <h3 style="font-size: 14px; font-weight: 700; color: #333; margin-bottom: 15px; text-transform: uppercase;">Estructura Evaluativa Registrada</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 15%; text-align: center;">Posición</th>
+                                <th style="width: 45%;">Descripción</th>
+                                <th style="width: 15%;">Porcentaje</th>
+                                <th style="width: 9%; text-align: center;">Editar</th>
+                                <th style="width: 9%; text-align: center;">Borrar</th>
+                                <th style="width: 12%; text-align: center;">Registrar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($cohortes)): ?>
                                 <tr>
-                                    <th style="width: 80px; text-align: center;">Posición</th>
-                                    <th>Descripción</th>
-                                    <th>Porcentaje (%)</th>
-                                    <th>Código Nota</th>
-                                    <th style="width: 180px; text-align: center;">Acciones</th>
+                                    <td colspan="6" style="text-align: center; color: #777777; padding: 20px;">Aún no ha configurado ninguna nota parcial o cohorte para este curso.</td>
                                 </tr>
-                            </thead>
-                            <tbody>
+                            <?php else: ?>
                                 <?php foreach ($cohortes as $ch): ?>
                                     <tr>
-                                        <td style="text-align: center; font-weight: 600;"><?= htmlspecialchars($ch['posicion']) ?></td>
-                                        <td style="font-weight: 500;"><?= htmlspecialchars($ch['desc_nota']) ?></td>
-                                        <td style="font-weight: 600; color: var(--accent-blue);"><?= htmlspecialchars($ch['porcentaje']) ?>%</td>
-                                        <td style="font-family: monospace; color: var(--text-secondary); font-size: 0.85rem;"><?= htmlspecialchars($ch['nota']) ?></td>
-                                        <td style="text-align: center; display: flex; gap: 0.5rem; justify-content: center;">
-                                            <a href="index.php?c=Nota&a=cohortes&edit_nota=<?= urlencode($ch['nota']) ?>" 
-                                               class="btn btn-secondary" 
-                                               style="padding: 0.4rem 0.6rem; font-size: 0.85rem;"
-                                               title="Editar Cohorte">
-                                                ✏️ Editar
-                                            </a>
-                                            <a href="index.php?c=Nota&a=eliminar_cohorte&nota=<?= urlencode($ch['nota']) ?>" 
-                                               class="btn btn-danger" 
-                                               style="padding: 0.4rem 0.6rem; font-size: 0.85rem;" 
-                                               onclick="return confirm('¿Está seguro de eliminar este cohorte? Esto borrará permanentemente todas las calificaciones de los estudiantes cargadas en él.');"
-                                               title="Borrar Cohorte">
-                                                🗑️ Borrar
-                                            </a>
+                                        <td style="text-align: center;"><strong><?= htmlspecialchars($ch['posicion']) ?></strong></td>
+                                        <td><?= htmlspecialchars($ch['desc_nota']) ?></td>
+                                        <td><strong><?= htmlspecialchars($ch['porcentaje']) ?>%</strong></td>
+                                        <td style="text-align: center;">
+                                            <a href="index.php?c=Nota&a=cohortes&edit_nota=<?= urlencode($ch['nota']) ?>" class="icon-action icon-blue" title="Editar cohorte">✏️</a>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <a href="index.php?c=Nota&a=eliminar_cohorte&nota=<?= urlencode($ch['nota']) ?>" class="icon-action icon-red" onclick="return confirm('¿Está seguro de eliminar este cohorte? Esto borrará permanentemente todas las calificaciones de los estudiantes cargadas en él.');" title="Borrar cohorte">🗑️</a>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <a href="index.php?c=Nota&a=registro" class="icon-action icon-green" title="Digitar calificaciones de este cohorte">📝</a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php endif; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Columna Derecha (30%) -->
+            <div class="panel-right">
+                <h3 class="panel-title">OPCIONES</h3>
+                
+                <a href="index.php?c=Curso&a=estudiantes" class="btn btn-option">Volver a inscritos</a>
+                <a href="index.php?c=Nota&a=registro" class="btn btn-option">Ver planilla</a>
+                <a href="index.php?c=Auth&a=logout" class="btn btn-option" style="background-color: #555555; border-color: #444444;">Cerrar sesión</a>
             </div>
         </div>
     </main>

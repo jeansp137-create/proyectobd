@@ -63,13 +63,13 @@
         }
 
         .table-print th {
-            background-color: #0f172a;
-            color: #ffffff;
-            font-weight: 600;
+            background-color: #ffeb3b !important; /* Amarillo */
+            color: #000000 !important;
+            font-weight: 700;
             text-transform: uppercase;
             font-size: 9px;
             padding: 8px 10px;
-            border: 1px solid #0f172a;
+            border: 1px solid #dcd123;
             letter-spacing: 0.5px;
         }
 
@@ -93,7 +93,8 @@
 
         .definitiva-col {
             font-weight: 700;
-            background-color: #f1f5f9;
+            background-color: #fff9c4 !important; /* Amarillo claro */
+            color: #000000;
         }
 
         .badge-print {

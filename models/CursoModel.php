@@ -10,9 +10,6 @@ class CursoModel {
 
     /**
      * Valida las credenciales del docente contra la base de datos
-     * @param string $cod_doc Código del docente
-     * @param string $clave Contraseña
-     * @return array|false Retorna el registro del docente si es válido, o false si no
      */
     public function validarDocente($cod_doc, $clave) {
         $sql = "SELECT * FROM docentes WHERE cod_doc = :cod_doc AND clave = :clave";
@@ -26,8 +23,6 @@ class CursoModel {
 
     /**
      * Obtiene los cursos asignados a un docente específico
-     * @param string $cod_doc Código del docente
-     * @return array Lista de cursos
      */
     public function obtenerCursosDocente($cod_doc) {
         $sql = "SELECT * FROM cursos WHERE cod_doc = :cod_doc ORDER BY nomb_cur ASC";
@@ -38,8 +33,6 @@ class CursoModel {
 
     /**
      * Obtiene los detalles de un curso por su código
-     * @param string $cod_cur Código del curso
-     * @return array|false Detalles del curso
      */
     public function obtenerCursoPorCodigo($cod_cur) {
         $sql = "SELECT * FROM cursos WHERE cod_cur = :cod_cur";
@@ -50,8 +43,6 @@ class CursoModel {
 
     /**
      * Obtiene los años de las inscripciones del docente para el menú desplegable
-     * @param string $cod_doc Código del docente
-     * @return array Lista de años
      */
     public function obtenerYearsDeDocente($cod_doc) {
         $sql = "SELECT DISTINCT i.year 
@@ -61,7 +52,59 @@ class CursoModel {
                 ORDER BY i.year DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':cod_doc' => $cod_doc]);
-        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $years = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        // Si no hay años registrados, por defecto retornamos el año actual para tener datos
+        if (empty($years)) {
+            return [date('Y')];
+        }
+        return $years;
+    }
+
+    // ==========================================
+    // NUEVOS MÉTODOS CRUD PARA LA TABLA CURSOS
+    // ==========================================
+
+    /**
+     * Inserta un nuevo curso en la base de datos
+     */
+    public function registrarCurso($cod_cur, $nomb_cur, $cod_doc) {
+        // Validamos si ya existe el código para evitar duplicados
+        $sqlCheck = "SELECT COUNT(*) FROM cursos WHERE cod_cur = :cod_cur";
+        $stmtCheck = $this->db->prepare($sqlCheck);
+        $stmtCheck->execute([':cod_cur' => $cod_cur]);
+        if ($stmtCheck->fetchColumn() > 0) {
+            return false;
+        }
+
+        $sql = "INSERT INTO cursos (cod_cur, nomb_cur, cod_doc) VALUES (:cod_cur, :nomb_cur, :cod_doc)";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            ':cod_cur'  => $cod_cur,
+            ':nomb_cur' => $nomb_cur,
+            ':cod_doc'  => $cod_doc
+        ]);
+    }
+
+    /**
+     * Actualiza un curso existente (NO altera cod_cur para proteger llaves foráneas)
+     */
+    public function actualizarCurso($cod_cur, $nomb_cur) {
+        $sql = "UPDATE cursos SET nomb_cur = :nomb_cur WHERE cod_cur = :cod_cur";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            ':nomb_cur' => $nomb_cur,
+            ':cod_cur'  => $cod_cur
+        ]);
+    }
+
+    /**
+     * Elimina físicamente un curso por su código (las llaves foráneas en cascada borrarán el resto de dependencias)
+     */
+    public function eliminarCurso($cod_cur) {
+        $sql = "DELETE FROM cursos WHERE cod_cur = :cod_cur";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([':cod_cur' => $cod_cur]);
     }
 }
 ?>
