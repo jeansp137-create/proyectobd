@@ -32,5 +32,6 @@ class Conexion {
         }
     }
 }
+<<<<<<< HEAD:config/conexion.php
 
 ?>  HOLAHOALHOLA
