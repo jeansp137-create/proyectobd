@@ -6,7 +6,7 @@ class Conexion {
     private $port = '5432';
     private $dbname = 'proyectobd'; 
     private $user = 'postgres';
-    private $password = '0192';   
+    private $password = 'postgres';   
 
     // Método principal que será llamado por los Modelos
     public function conectar() {
@@ -32,5 +32,4 @@ class Conexion {
         }
     }
 }
-
-?>  HOLAHOALHOLA
+?>
