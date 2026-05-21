@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 // Iniciamos la sesión para poder guardar los datos del docente logueado
 session_start();
 
@@ -14,7 +16,7 @@ if (file_exists('models/EstudianteModel.php')) {
 }
 if (file_exists('models/NotaModel.php')) {
     require_once 'models/NotaModel.php';
-}
+}   
 
 // Obtenemos el controlador (c) y la acción (a) desde la URL
 // Ejemplo: index.php?c=Curso&a=index
