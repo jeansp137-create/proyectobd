@@ -32,5 +32,4 @@ class Conexion {
         }
     }
 }
-
-?>
+?> //ONICHAN TAISKI
