@@ -71,8 +71,18 @@ class CursoController {
         // Obtenemos estudiantes inscritos (PANTALLA 4)
         $estudiantesInscritos = $this->estudianteModel->obtenerEstudiantesInscritos($cod_cur, $year, $periodo);
 
-        // Obtenemos todos los estudiantes de la universidad para el formulario de inscripción
-        $todosEstudiantes = $this->estudianteModel->obtenerTodosLosEstudiantes();
+        // Obtenemos todos los estudiantes registrados en la universidad
+        $todosGlobales = $this->estudianteModel->obtenerTodosLosEstudiantes();
+
+        // FILTRO DE MATRÍCULA: Excluimos a los estudiantes que ya están inscritos en este curso
+        // 1. Extraemos en un array plano todos los códigos de estudiantes matriculados en este curso
+        $codigosInscritos = array_column($estudiantesInscritos, 'cod_est');
+
+        // 2. Filtramos la lista global para dejar únicamente a los estudiantes disponibles
+        $todosEstudiantes = array_filter($todosGlobales, function($estudiante) use ($codigosInscritos) {
+            // Si el código del estudiante no se encuentra en el array de inscritos, lo dejamos en la lista
+            return !in_array($estudiante['cod_est'], $codigosInscritos);
+        });
 
         // Cargamos la vista
         require_once 'views/estudiantes_inscritos.php';
