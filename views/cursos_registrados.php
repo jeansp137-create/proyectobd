@@ -138,6 +138,7 @@ $fecha_actual = $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]." de "
 
     <footer>
         <p>&copy; <?= date('Y') ?> Portal Docente - Universidad de los Llanos. Todos los derechos reservados.</p>
+        <p style="font-size: 11px; color: #888888; margin-top: 5px;">Conexiones físicas a PostgreSQL en esta petición: <strong><?= Conexion::getConectarCount() ?></strong> (Singleton Activo)</p>
     </footer>
 </body>
 </html>

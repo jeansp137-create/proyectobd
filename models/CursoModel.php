@@ -3,8 +3,8 @@ class CursoModel {
     private $db;
 
     public function __construct() {
-        // Instanciamos la clase Conexion y obtenemos el objeto PDO
-        $conexion = new Conexion();
+        // Obtenemos la instancia única de la clase Conexion y su objeto PDO
+        $conexion = Conexion::getInstancia();
         $this->db = $conexion->conectar();
     }
 

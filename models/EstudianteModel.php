@@ -3,7 +3,7 @@ class EstudianteModel {
     private $db;
 
     public function __construct() {
-        $conexion = new Conexion();
+        $conexion = Conexion::getInstancia();
         $this->db = $conexion->conectar();
     }
 
