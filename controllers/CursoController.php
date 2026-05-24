@@ -30,9 +30,29 @@ class CursoController {
     public function estudiantes() {
         // Guardamos las selecciones en la sesión si se envían por POST desde la Selección (Pantalla 2)
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $_SESSION['curso_activo']   = isset($_POST['cod_cur']) ? trim($_POST['cod_cur']) : '';
-            $_SESSION['year_activo']    = isset($_POST['year']) ? (int) trim($_POST['year']) : 2022;
-            $_SESSION['periodo_activo'] = isset($_POST['periodo']) ? trim($_POST['periodo']) : 'Periodo I';
+            $cod_cur = isset($_POST['cod_cur']) ? trim($_POST['cod_cur']) : '';
+            $year    = isset($_POST['year']) ? (int) trim($_POST['year']) : (int) date('Y');
+            $periodo = isset($_POST['periodo']) ? trim($_POST['periodo']) : 'Periodo I';
+
+            $anio_actual = (int) date('Y');
+            $mes_actual  = (int) date('m');
+
+            // VALIDACIONES DE BACKEND (Sencillas y Robustas)
+            if ($year > $anio_actual) {
+                $_SESSION['error_mensaje'] = "Error: El año académico seleccionado ({$year}) no puede ser superior al año actual ({$anio_actual}).";
+                header("Location: index.php?c=Curso&a=index");
+                exit;
+            }
+
+            if ($year === $anio_actual && $mes_actual < 7 && $periodo === 'Periodo II') {
+                $_SESSION['error_mensaje'] = "Error: El Periodo II no está habilitado para el año actual hasta el segundo semestre (Julio).";
+                header("Location: index.php?c=Curso&a=index");
+                exit;
+            }
+
+            $_SESSION['curso_activo']   = $cod_cur;
+            $_SESSION['year_activo']    = $year;
+            $_SESSION['periodo_activo'] = $periodo;
         }
 
         // Si no hay selecciones en la sesión, lo devolvemos a la pantalla de selección
