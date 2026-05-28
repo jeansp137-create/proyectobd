@@ -1,4 +1,4 @@
-/* Estilos Clásicos e Institucionales para ProyectoBD */
+
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
 
 * {
@@ -16,11 +16,9 @@ body {
     flex-direction: column;
 }
 
-/* ==========================================
-   HEADER A DOS FRANJAS (100% ANCHO)
-   ========================================== */
+
 .header-top {
-    background-color: #3b00e3; /* Azul rey / Morado oscuro */
+    background-color: #3b00e3; 
     color: #ffffff;
     padding: 12px 20px;
     text-align: center;
@@ -40,7 +38,7 @@ body {
 }
 
 .header-bottom {
-    background-color: #87ceeb; /* Celeste / Azul claro */
+    background-color: #87ceeb; 
     color: #2c3e50;
     padding: 10px 20px;
     text-align: center;
@@ -51,7 +49,7 @@ body {
     border-bottom: 1px solid #70b3cf;
 }
 
-/* Contenedor de la Aplicación */
+
 .app-container {
     width: 100%;
     max-width: 1200px;
@@ -60,9 +58,7 @@ body {
     flex: 1;
 }
 
-/* ==========================================
-   ESTRUCTURA DE PANELES (70% / 30%)
-   ========================================== */
+
 .panel-container {
     display: flex;
     gap: 20px;
@@ -71,21 +67,21 @@ body {
     width: 100%;
 }
 
-/* Columna Izquierda (70%) */
+
 .panel-left {
     flex: 0 0 70%;
     width: 70%;
     background-color: #ffffff;
-    border: 1px solid #d3d3d3; /* Borde gris fino */
+    border: 1px solid #d3d3d3; 
     padding: 25px;
 }
 
-/* Columna Derecha (30%) */
+
 .panel-right {
     flex: 0 0 30%;
     width: 30%;
-    background-color: #f5f5f5; /* Fondo gris claro */
-    border: 1px solid #d3d3d3; /* Borde gris */
+    background-color: #f5f5f5; 
+    border: 1px solid #d3d3d3; 
     padding: 20px;
 }
 
@@ -108,9 +104,7 @@ body {
     padding-left: 10px;
 }
 
-/* ==========================================
-   FORMULARIOS E INPUTS CLÁSICOS
-   ========================================== */
+
 .form-group-row {
     display: flex;
     align-items: center;
@@ -156,7 +150,7 @@ select:focus {
     box-shadow: 0 0 4px rgba(51, 122, 183, 0.3);
 }
 
-/* Grupos de radio y checkboxes */
+
 .radio-group-horizontal {
     display: flex;
     gap: 20px;
@@ -171,9 +165,7 @@ select:focus {
     font-weight: 500;
 }
 
-/* ==========================================
-   BOTONES RECTANGULARES RÍGIDOS
-   ========================================== */
+
 .btn {
     display: inline-block;
     padding: 8px 16px;
@@ -187,11 +179,11 @@ select:focus {
     transition: background-color 0.2s ease;
 }
 
-/* Botones de opciones (apilados verticalmente en la derecha) */
+
 .btn-option {
     display: block;
     width: 100%;
-    background-color: #337ab7; /* Azul institucional */
+    background-color: #337ab7; 
     color: #ffffff;
     margin-bottom: 10px;
     text-align: center;
@@ -202,7 +194,7 @@ select:focus {
     background-color: #286090;
 }
 
-/* Botón verde para inserciones */
+
 .btn-success {
     background-color: #5cb85c;
     color: #ffffff;
@@ -213,7 +205,7 @@ select:focus {
     background-color: #449d44;
 }
 
-/* Botón morado para el Login */
+
 .btn-purple {
     background-color: #5c32a8;
     color: #ffffff;
@@ -224,7 +216,7 @@ select:focus {
     background-color: #472186;
 }
 
-/* Botón azul para envíos principales */
+
 .btn-primary {
     background-color: #337ab7;
     color: #ffffff;
@@ -235,7 +227,7 @@ select:focus {
     background-color: #286090;
 }
 
-/* Botón delineado verde para opciones de curso */
+
 .btn-outline-success {
     display: block;
     width: 100%;
@@ -251,7 +243,7 @@ select:focus {
     color: white;
 }
 
-/* Botón delineado gris/secundario */
+
 .btn-secondary {
     background-color: #e6e6e6;
     color: #333333;
@@ -262,7 +254,7 @@ select:focus {
     background-color: #d4d4d4;
 }
 
-/* Botón rojo */
+
 .btn-danger {
     background-color: #d9534f;
     color: white;
@@ -273,9 +265,7 @@ select:focus {
     background-color: #c9302c;
 }
 
-/* ==========================================
-   TABLAS INSTITUCIONALES CON BORDES FINOS
-   ========================================== */
+
 .table-responsive {
     width: 100%;
     overflow-x: auto;
@@ -308,20 +298,20 @@ tr:nth-child(even) {
     background-color: #fafafa;
 }
 
-/* Planilla final con encabezados amarillos */
+
 .planilla-calificaciones th {
-    background-color: #ffeb3b !important; /* Amarillo */
+    background-color: #ffeb3b !important; 
     color: #000000 !important;
     border: 1px solid #dcd123;
 }
 
 .planilla-calificaciones .definitiva-cell {
-    background-color: #fff9c4 !important; /* Amarillo claro */
+    background-color: #fff9c4 !important; 
     font-weight: 700;
     color: #000000;
 }
 
-/* Íconos circulares clásicos para acciones */
+
 .icon-action {
     display: inline-flex;
     width: 28px;
@@ -340,20 +330,18 @@ tr:nth-child(even) {
 }
 
 .icon-blue {
-    background-color: #337ab7; /* Editar */
+    background-color: #337ab7; 
 }
 
 .icon-red {
-    background-color: #d9534f; /* Eliminar */
+    background-color: #d9534f; 
 }
 
 .icon-green {
-    background-color: #5cb85c; /* Registrar/Planilla */
+    background-color: #5cb85c; 
 }
 
-/* ==========================================
-   ALERTAS Y CAJAS EXPLICATIVAS
-   ========================================== */
+
 .alert {
     padding: 12px 15px;
     border: 1px solid transparent;
@@ -373,7 +361,7 @@ tr:nth-child(even) {
     color: #31708f;
 }
 
-/* Recuadro Amarillo Explicativo */
+
 .recuadro-amarillo {
     background-color: #fcf8e3;
     border: 1px solid #faebcc;
@@ -384,7 +372,7 @@ tr:nth-child(even) {
     line-height: 1.5;
 }
 
-/* Recuadro Verde Explicativo */
+
 .recuadro-verde {
     background-color: #dff0d8;
     border: 1px solid #d6e9c6;
@@ -394,7 +382,7 @@ tr:nth-child(even) {
     line-height: 1.5;
 }
 
-/* Centrado para el Login */
+
 .login-center-container {
     width: 100%;
     max-width: 500px;
@@ -404,7 +392,7 @@ tr:nth-child(even) {
     padding: 30px;
 }
 
-/* Pie de página */
+
 footer {
     background-color: #f5f5f5;
     border-top: 1px solid #e3e3e3;

@@ -63,7 +63,7 @@
         }
 
         .table-print th {
-            background-color: #ffeb3b !important; /* Amarillo */
+            background-color: #ffeb3b !important; 
             color: #000000 !important;
             font-weight: 700;
             text-transform: uppercase;
@@ -93,7 +93,7 @@
 
         .definitiva-col {
             font-weight: 700;
-            background-color: #fff9c4 !important; /* Amarillo claro */
+            background-color: #fff9c4 !important; 
             color: #000000;
         }
 
@@ -152,7 +152,7 @@
             font-size: 10px;
         }
 
-        /* Ocultar botones e interfaces durante la impresión real */
+        
         @media print {
             .no-print {
                 display: none !important;
@@ -167,7 +167,7 @@
 <body onload="window.print()">
     <!-- Botón para forzar impresión manual si el disparador automático no corre -->
     <div class="no-print" style="text-align: center;">
-        <button onclick="window.print()" class="no-print-btn">🖨️ Imprimir Planilla Oficial</button>
+        <button onclick="window.print()" class="no-print-btn"> Imprimir Planilla Oficial</button>
         <button onclick="window.close()" class="no-print-btn" style="background-color: #64748b; box-shadow: none;">❌ Cerrar Ventana</button>
     </div>
 

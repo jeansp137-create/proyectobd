@@ -3,7 +3,7 @@ $dias = array("Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábad
 $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
 $fecha_actual = $dias[date('w')]." ".date('d')." de ".$meses[date('n')-1]." de ".date('Y');
 
-// Cálculo de la suma total de porcentajes
+
 $sumaActual = 0.0;
 foreach ($cohortes as $ch) {
     $sumaActual += (float) $ch['porcentaje'];

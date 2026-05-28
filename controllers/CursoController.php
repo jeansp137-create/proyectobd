@@ -8,27 +8,23 @@ class CursoController {
         $this->estudianteModel = new EstudianteModel();
     }
 
-    /**
-     * PANTALLA 2: Selección de Curso, Año y Periodo
-     */
+    
     public function index() {
         $docente_id = $_SESSION['docente_id'];
 
-        // Obtenemos los cursos del docente
+        
         $cursos = $this->cursoModel->obtenerCursosDocente($docente_id);
         
-        // Obtenemos los años previos registrados para ayudar a auto-completar si lo desea
+        
         $years = $this->cursoModel->obtenerYearsDeDocente($docente_id);
 
-        // Cargamos la vista de selección
+        
         require_once 'views/cursos_docente.php';
     }
 
-    /**
-     * PANTALLA 4: Visualización de Estudiantes Inscritos
-     */
+    
     public function estudiantes() {
-        // Guardamos las selecciones en la sesión si se envían por POST desde la Selección (Pantalla 2)
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $cod_cur = isset($_POST['cod_cur']) ? trim($_POST['cod_cur']) : '';
             $year    = isset($_POST['year']) ? (int) trim($_POST['year']) : (int) date('Y');
@@ -37,7 +33,7 @@ class CursoController {
             $anio_actual = (int) date('Y');
             $mes_actual  = (int) date('m');
 
-            // VALIDACIONES DE BACKEND (Sencillas y Robustas)
+            
             if ($year > $anio_actual) {
                 $_SESSION['error_mensaje'] = "Error: El año académico seleccionado ({$year}) no puede ser superior al año actual ({$anio_actual}).";
                 header("Location: index.php?c=Curso&a=index");
@@ -55,7 +51,7 @@ class CursoController {
             $_SESSION['periodo_activo'] = $periodo;
         }
 
-        // Si no hay selecciones en la sesión, lo devolvemos a la pantalla de selección
+        
         if (empty($_SESSION['curso_activo'])) {
             header("Location: index.php?c=Curso&a=index");
             exit;
@@ -65,32 +61,30 @@ class CursoController {
         $year    = $_SESSION['year_activo'];
         $periodo = $_SESSION['periodo_activo'];
 
-        // Obtenemos detalles del curso
+        
         $curso = $this->cursoModel->obtenerCursoPorCodigo($cod_cur);
 
-        // Obtenemos estudiantes inscritos (PANTALLA 4)
+        
         $estudiantesInscritos = $this->estudianteModel->obtenerEstudiantesInscritos($cod_cur, $year, $periodo);
 
-        // Obtenemos todos los estudiantes registrados en la universidad
+        
         $todosGlobales = $this->estudianteModel->obtenerTodosLosEstudiantes();
 
-        // FILTRO DE MATRÍCULA: Excluimos a los estudiantes que ya están inscritos en este curso
-        // 1. Extraemos en un array plano todos los códigos de estudiantes matriculados en este curso
+        
+        
         $codigosInscritos = array_column($estudiantesInscritos, 'cod_est');
 
-        // 2. Filtramos la lista global para dejar únicamente a los estudiantes disponibles
+        
         $todosEstudiantes = array_filter($todosGlobales, function($estudiante) use ($codigosInscritos) {
-            // Si el código del estudiante no se encuentra en el array de inscritos, lo dejamos en la lista
+            
             return !in_array($estudiante['cod_est'], $codigosInscritos);
         });
 
-        // Cargamos la vista
+        
         require_once 'views/estudiantes_inscritos.php';
     }
 
-    /**
-     * Acción para inscribir a un estudiante en el curso activo
-     */
+    
     public function inscribir() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $cod_est = isset($_POST['cod_est']) ? trim($_POST['cod_est']) : '';
@@ -112,9 +106,7 @@ class CursoController {
         exit;
     }
 
-    /**
-     * Acción para eliminar la inscripción de un estudiante
-     */
+    
     public function desinscribir() {
         $cod_est = isset($_GET['cod_est']) ? trim($_GET['cod_est']) : '';
         
@@ -134,13 +126,11 @@ class CursoController {
         exit;
     }
 
-    // ==========================================
-    // CRUD DE CURSOS
-    // ==========================================
+    
+    
+    
 
-    /**
-     * PANTALLA 3: Cursos Registrados (CRUD Cursos)
-     */
+    
     public function listar_cursos() {
         $docente_id = $_SESSION['docente_id'];
         $cursos = $this->cursoModel->obtenerCursosDocente($docente_id);
@@ -157,9 +147,7 @@ class CursoController {
         require_once 'views/cursos_registrados.php';
     }
 
-    /**
-     * Adicionar Curso (POST)
-     */
+    
     public function crear_curso() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $cod_cur  = isset($_POST['cod_cur']) ? trim($_POST['cod_cur']) : '';
@@ -181,13 +169,11 @@ class CursoController {
         exit;
     }
 
-    /**
-     * Editar Curso (POST / GET)
-     */
+    
     public function editar_curso() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // El campo cod_cur es de solo lectura en el formulario HTML (atributo readonly)
-            // Aquí NO actualizamos cod_cur en el UPDATE para mantener la integridad referencial.
+            
+            
             $cod_cur  = isset($_POST['cod_cur']) ? trim($_POST['cod_cur']) : '';
             $nomb_cur = isset($_POST['nomb_cur']) ? trim($_POST['nomb_cur']) : '';
 
@@ -205,15 +191,13 @@ class CursoController {
             exit;
         }
 
-        // Si se llama por GET para cargar el formulario de edición
+        
         $cod_cur = isset($_GET['cod_cur']) ? trim($_GET['cod_cur']) : '';
         header("Location: index.php?c=Curso&a=listar_cursos&edit_cod_cur=" . urlencode($cod_cur));
         exit;
     }
 
-    /**
-     * Eliminar Curso (GET)
-     */
+    
     public function eliminar_curso() {
         $cod_cur = isset($_GET['cod_cur']) ? trim($_GET['cod_cur']) : '';
         if (!empty($cod_cur)) {
@@ -228,13 +212,11 @@ class CursoController {
         exit;
     }
 
-    // ==========================================
-    // CARGA MASIVA DE ESTUDIANTES VIA CSV
-    // ==========================================
+    
+    
+    
 
-    /**
-     * PANTALLA 5: Formulario de carga de estudiantes (CSV)
-     */
+    
     public function cargar_estudiantes_vista() {
         if (empty($_SESSION['curso_activo'])) {
             header("Location: index.php?c=Curso&a=index");
@@ -251,9 +233,7 @@ class CursoController {
         require_once 'views/cargar_estudiantes.php';
     }
 
-    /**
-     * Procesa el archivo CSV subido por el usuario
-     */
+    
     public function procesar_csv() {
         if (empty($_SESSION['curso_activo'])) {
             header("Location: index.php?c=Curso&a=index");
@@ -273,7 +253,7 @@ class CursoController {
                 exit;
             }
 
-            // Validar extensión
+            
             $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
             if (strtolower($extension) !== 'csv') {
                 $_SESSION['error_mensaje'] = "El archivo debe tener extensión .csv.";
@@ -289,7 +269,7 @@ class CursoController {
                 $firstRow = true;
                 
                 while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                    // Si detecta punto y coma como delimitador en lugar de coma
+                    
                     if (count($data) === 1 && strpos($data[0], ';') !== false) {
                         $data = explode(';', $data[0]);
                     }
@@ -301,28 +281,28 @@ class CursoController {
                     $cod_est  = trim($data[0]);
                     $nomb_est = trim($data[1]);
 
-                    // Validar si la primera fila es de encabezados
+                    
                     if ($firstRow) {
                         $firstRow = false;
                         
-                        // Si no es numérico el código de estudiante o contiene palabras comunes de encabezados
+                        
                         if (!is_numeric($cod_est) || 
                             stripos($cod_est, 'codigo') !== false || 
                             stripos($cod_est, 'código') !== false || 
                             stripos($nomb_est, 'nombre') !== false) {
-                            continue; // Ignora los encabezados
+                            continue; 
                         }
                     }
 
                     if (!empty($cod_est) && !empty($nomb_est)) {
-                        // 1. Verificar si el estudiante existe en el catálogo global
+                        
                         $estudiante = $this->estudianteModel->obtenerEstudiantePorCodigo($cod_est);
                         if (!$estudiante) {
                             $this->estudianteModel->registrarEstudianteSimple($cod_est, $nomb_est);
                             $countNuevos++;
                         }
 
-                        // 2. Inscribir en el curso activo
+                        
                         $inscrito = $this->estudianteModel->inscribirEstudiante($cod_cur, $cod_est, $year, $periodo);
                         if ($inscrito) {
                             $countMatriculados++;
